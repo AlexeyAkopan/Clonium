@@ -54,6 +54,9 @@ namespace Colonium
                 this.length = length;
                 this.width = width;
                 this.items = new Item[length, width];
+                for (int i = 0; i<length; i++)
+                    for (int j = 0; j<width; j++)
+                        items[i, j] = new Item(0, 1, i, j);
             }
             public void Print_Field()
             {
@@ -61,11 +64,14 @@ namespace Colonium
                 {
                     for (int g = 0; g < width; g++)
                     {
-                        Console.Write(items[f, g]);
+                        Console.Write(items[f, g].k);
+                        Console.Write(items[f, g].ncolor);
                         Console.Write(" ");
                     }
                     Console.WriteLine();    
                 }
+                for (int f = 0; f < UList.Count; f++)
+                    Console.WriteLine("user" + Convert.ToString(f) + " " + Convert.ToString(UList[f].score) + Convert.ToString(UList[f].item_count));
             }
             public void Add_count(int i, int j)
             {
@@ -79,7 +85,9 @@ namespace Colonium
             }
             public void Clear_Dis_List()
             {
-                foreach (int[] c in Main_DList)
+                
+                int Len_of_MDL = Main_DList.Count;
+                for (int c = 0; c<Len_of_MDL;c++)
                 {
                     Disclosure(Main_DList.Peek()[0], Main_DList.Peek()[1]);
                     Main_DList.Dequeue();
@@ -93,8 +101,9 @@ namespace Colonium
                 if (t == 1)
                     Main_DList = DList_1;
                 else
-                    Main_DList = DList_2; 
-                foreach (int[] c in AList)
+                    Main_DList = DList_2;
+                int Len_of_AList = AList.Count;
+                for (int c = 0; c<Len_of_AList; c++)
                 {
                     Add_count(AList.Peek()[0], AList.Peek()[1]);
                     AList.Dequeue();
@@ -173,6 +182,7 @@ namespace Colonium
                     int i = Convert.ToInt32(Console.ReadLine());
                     Console.Write("Enter second coordinates of choosed item: ");
                     int j = Convert.ToInt32(Console.ReadLine());
+                    Console.WriteLine(F.items[i, j].ncolor);
                     while (!((F.items[i,j].ncolor == 0)|| (F.items[i, j].ncolor == u+1)))
                     {
                         Console.WriteLine("Wrong coordinates");
@@ -182,7 +192,7 @@ namespace Colonium
                         j = Convert.ToInt32(Console.ReadLine());
                     }
                     F.AList.Enqueue(new int[] { i, j });
-
+                    F.Clear_Add_List();
                 }
             }
         }
