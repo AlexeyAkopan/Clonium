@@ -1,0 +1,190 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Colonium
+{
+    class Program
+    {
+        
+        class Item
+        {
+            public int k;
+            public int access;
+            public int i, j;
+            public int ncolor;
+            public Item(int k, int access,int i, int j)
+            {
+                this.k = k;
+                this.access = access;
+                this.i = i;
+                this.j = j;
+                this.ncolor = 0;
+            }
+        }
+        class User
+        {
+            public int item_count = 0;
+            public int score = 0;
+            public int ncolor;
+            public User(int ncolor)
+            {
+                this.ncolor = ncolor;
+            }
+        }
+        class Field
+        {
+            public Queue<int[]> AList = new Queue<int[]>();
+            public Queue<int[]> DList_1 = new Queue<int[]>();
+            public Queue<int[]> DList_2 = new Queue<int[]>();
+            public Queue<int[]> Main_DList = new Queue<int[]>();
+            public List<User> UList = new List<User>();
+            public int Current_Color = 0;
+            public int t = 1;
+            public int length;
+            public int width;
+            public Item[,] items;
+
+            public List<string> Colors = new List<string>() { "n", "y", "r", "b", "g" };
+            
+            public Field(int length, int width)
+            {
+                this.length = length;
+                this.width = width;
+                this.items = new Item[length, width];
+            }
+            public void Print_Field()
+            {
+                for (int f=0; f<length; f++)
+                {
+                    for (int g = 0; g < width; g++)
+                    {
+                        Console.Write(items[f, g]);
+                        Console.Write(" ");
+                    }
+                    Console.WriteLine();    
+                }
+            }
+            public void Add_count(int i, int j)
+            {
+                if (items[i,j].k ==0)
+                    UList[Current_Color - 1].item_count += 1;
+                items[i, j].k += 1;
+                items[i, j].ncolor = Current_Color;
+                UList[Current_Color - 1].score += 1;
+                if ((items[i, j].k > 3) && !(Main_DList.Contains(new int[] { i, j })))
+                    Main_DList.Enqueue(new int[] { i, j });
+            }
+            public void Clear_Dis_List()
+            {
+                foreach (int[] c in Main_DList)
+                {
+                    Disclosure(Main_DList.Peek()[0], Main_DList.Peek()[1]);
+                    Main_DList.Dequeue();
+                }
+                if (AList.Count > 0)
+                    Clear_Add_List();
+
+            }
+            public void Clear_Add_List()
+            {
+                if (t == 1)
+                    Main_DList = DList_1;
+                else
+                    Main_DList = DList_2; 
+                foreach (int[] c in AList)
+                {
+                    Add_count(AList.Peek()[0], AList.Peek()[1]);
+                    AList.Dequeue();
+                }
+                Print_Field();
+                Clear_Dis_List();
+                if (t == 1)
+                {
+                    Main_DList = DList_2;
+                    t = 2;
+                }
+                else
+                {
+                    Main_DList = DList_1;
+                    t = 1;
+                }
+
+            }
+            public void Disclosure(int i, int j)
+            {
+                items[i, j].k -= 4;
+                UList[Current_Color - 1].score -= 4;
+                if (items[i,j].k == 0)
+                {
+                    items[i, j].ncolor = 0;
+                    UList[Current_Color - 1].item_count -= 1;
+                }
+                foreach (int c in new int[] { -1, 1})
+                {
+                    if ((i + c >= 0) && (i + c < length) && (items[i + c, j].access == 1))
+                    {
+                        AList.Enqueue(new int[] { i + c, j });
+                        if (!(items[i + c, j].ncolor == 0) || (items[i + c, j].ncolor == Current_Color))
+                        {
+                            UList[items[i + c, j].ncolor - 1].score -= items[i + c, j].k;
+                            UList[items[i + c, j].ncolor - 1].item_count -= 1;
+                            UList[Current_Color - 1].score += items[i + c, j].k;
+                            UList[Current_Color - 1].item_count += 1;
+                            items[i + c, j].ncolor = Current_Color;
+                        }
+                    }
+                    if ((j + c >= 0) && (j + c < width) && (items[i,j+c].access == 1))
+                    {
+                        AList.Enqueue(new int[] { i, j + c });
+                        if (!(items[i, j + c].ncolor == 0) || (items[i, j + c].ncolor == Current_Color))
+                        {
+                            UList[items[i, j + c].ncolor - 1].score -= items[i, j + c].k;
+                            UList[items[i, j + c].ncolor - 1].item_count -= 1;
+                            UList[Current_Color - 1].score += items[i, j + c].k;
+                            UList[Current_Color - 1].item_count += 1;
+                            items[i, j + c].ncolor = Current_Color;
+                        }
+                    }
+                }
+            }
+        }
+
+        static void Main(string[] args)
+        {
+            
+
+            int length = 3;
+            int width = 3;
+            Field F = new Field(length, width);
+            Console.Write("Enter number of users: ");
+            int Number_of_Users = Convert.ToInt32(Console.ReadLine());
+            for (int u = 0; u < Number_of_Users; u++)
+                F.UList.Add(new User(u + 1));
+            while (true)
+            {
+                for (int u = 0; u < Number_of_Users; u++)
+                {
+                    F.Current_Color = u + 1;
+                    Console.WriteLine(Convert.ToString(u) + "player move");
+                    Console.Write("Enter first coordinates of choosed item: ");
+                    int i = Convert.ToInt32(Console.ReadLine());
+                    Console.Write("Enter second coordinates of choosed item: ");
+                    int j = Convert.ToInt32(Console.ReadLine());
+                    while (!((F.items[i,j].ncolor == 0)|| (F.items[i, j].ncolor == u+1)))
+                    {
+                        Console.WriteLine("Wrong coordinates");
+                        Console.Write("Enter first coordinates of choosed item: ");
+                        i = Convert.ToInt32(Console.ReadLine());
+                        Console.Write("Enter second coordinates of choosed item: ");
+                        j = Convert.ToInt32(Console.ReadLine());
+                    }
+                    F.AList.Enqueue(new int[] { i, j });
+
+                }
+            }
+        }
+    }
+}
