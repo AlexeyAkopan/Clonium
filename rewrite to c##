@@ -26,8 +26,8 @@ namespace Colonium
         }
         class User
         {
-            public int item_count = 0;
-            public int score = 0;
+            public int item_count = 1;
+            public int score = 3;
             public int ncolor;
             public User(int ncolor)
             {
@@ -65,7 +65,7 @@ namespace Colonium
                     for (int g = 0; g < width; g++)
                     {
                         Console.Write(items[f, g].k);
-                        Console.Write(items[f, g].ncolor);
+                        Console.Write(Colors[items[f, g].ncolor]);
                         Console.Write(" ");
                     }
                     Console.WriteLine();    
@@ -160,22 +160,54 @@ namespace Colonium
                 }
             }
         }
+        static bool Any_users(ref Field F)
+        {
+            int p_1 = -1;
+            int p_2 = -1;
+            for (int c = 0; c<F.UList.Count;c++)
+            {
+                if ((F.UList[c].item_count != 0)&&(p_1==-1))
+                {
+                    p_1 = c;
+                }
+                if ((F.UList[F.UList.Count-c-1].item_count != 0) && (p_2 == -1))
+                {
+                    p_2 = F.UList.Count - c - 1;
+                }
+            }
+            if (p_1 == p_2)
+                return false;
+            else
+                return true;
+        }
 
         static void Main(string[] args)
         {
+            int d = 0;
             
-
-            int length = 3;
+            int length =3;
             int width = 3;
+            int[,] First_Position = 
+                new int[,] { { d, d }, { d, width - d - 1 }, { length - d - 1, d }, { length - 1, width - 1 } };
             Field F = new Field(length, width);
             Console.Write("Enter number of users: ");
             int Number_of_Users = Convert.ToInt32(Console.ReadLine());
             for (int u = 0; u < Number_of_Users; u++)
+            { 
                 F.UList.Add(new User(u + 1));
-            while (true)
+                F.items[First_Position[u, 0], First_Position[u, 1]].k = 3;
+                F.items[First_Position[u, 0], First_Position[u, 1]].ncolor = u + 1;
+            }
+            Console.WriteLine("Anu_users: " + Convert.ToString(Any_users(ref F)));
+            F.Print_Field();
+            Console.WriteLine(F.UList.Count);
+            while (Any_users(ref F))
             {
                 for (int u = 0; u < Number_of_Users; u++)
                 {
+                    if (!Any_users(ref F))
+                        break;
+                    Console.WriteLine("Anu_users: " + Convert.ToString(Any_users(ref F)));
                     F.Current_Color = u + 1;
                     Console.WriteLine(Convert.ToString(u) + "player move");
                     Console.Write("Enter first coordinates of choosed item: ");
@@ -183,7 +215,7 @@ namespace Colonium
                     Console.Write("Enter second coordinates of choosed item: ");
                     int j = Convert.ToInt32(Console.ReadLine());
                     Console.WriteLine(F.items[i, j].ncolor);
-                    while (!((F.items[i,j].ncolor == 0)|| (F.items[i, j].ncolor == u+1)))
+                    while (!(F.items[i, j].ncolor == u+1))
                     {
                         Console.WriteLine("Wrong coordinates");
                         Console.Write("Enter first coordinates of choosed item: ");
@@ -193,8 +225,18 @@ namespace Colonium
                     }
                     F.AList.Enqueue(new int[] { i, j });
                     F.Clear_Add_List();
+                    
                 }
             }
+            int nwinner = 0;
+            while (true)
+            {
+                if (F.UList[nwinner].item_count != 0)
+                    break;
+                else nwinner += 1;
+            }
+            Console.WriteLine("Winner is player " + Convert.ToString(nwinner));
+
         }
     }
 }
