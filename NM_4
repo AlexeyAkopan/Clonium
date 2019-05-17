@@ -1,0 +1,28 @@
+A = np.array([[0.34, 0.71, 0.63], [0.71, -0.65, -0.18], [1.17, -2.35, 0.75]])
+b = np.array([2.08, 0.17, 1.28])
+n = b.size
+M = []
+b_ = []
+for i in range(n):
+    m = 0
+    mi = 0
+    C = []
+    d = []
+    for k in range(n):
+        if abs(A[i][k]) > m:
+            m = A[i][k]
+            mi = k
+    b[i] /= m
+    A[i] /= m
+    M.append(mi)
+    for j in range(n):
+        if not(j == i):
+            b[j] -= b[i]*A[j][mi]
+            A[j] -= A[i]*A[j][mi]
+
+    d = b[mi]
+    b[mi] = b[i]
+    b[i] = d
+for i in range(n):
+    b_.append(b[M[i]])
+print(b_)
