@@ -1,0 +1,84 @@
+"""
+import pandas
+import numpy as np
+from sklearn.model_selection import KFold, cross_val_score
+from sklearn.neighbors import KNeighborsClassifier as KNC
+from sklearn.preprocessing import scale
+
+data = pandas.read_csv('C:/Users/Леша/Downloads/wine.data').values
+classes = data[:, 0]
+attributes = data[:, 1:]
+KF = KFold(n_splits=5, shuffle=True, random_state=42)
+results = []
+m = 0
+mk = 1
+for k in range(1, 51):
+    t = np.mean(cross_val_score(X=attributes, y=classes,  estimator=KNC(n_neighbors=k), cv=KF, scoring='accuracy'))
+    print([t,k])
+    if t >= m:
+        m = t
+        mk = k
+    results.append(t)
+print([m, mk])
+ans1 = [max(results), np.argmax(results)]
+attributes_ = scale(X=attributes)
+results = []
+m_ = 0
+mk_ = 1
+for k in range(1, 51):
+    t = np.mean(cross_val_score(X=attributes_, y=classes,  estimator=KNC(n_neighbors=k), cv=KF, scoring='accuracy'))
+    print([t, k])
+    if t >= m_:
+        m_ = t
+        mk_ = k
+    results.append(t)
+print([m_, mk_])
+ans2 = [max(results), np.argmax(results)]
+print([ans1, ans2])
+
+
+from sklearn.datasets import load_boston
+from sklearn.neighbors import KNeighborsRegressor as KNR
+data = load_boston().data
+target = load_boston().target
+data_ = scale(X=data)
+print([type(data), np.shape(target)])
+KF = KFold(n_splits=5, shuffle=True, random_state=42)
+results = []
+for k in np.linspace(1,10,200):
+    t = np.mean(cross_val_score(X=data_, y=target,  estimator=KNR(n_neighbors=5, weights='distance', metric='minkowski', p=k),
+                                cv=KF, scoring='neg_mean_squared_error'))
+    results.append(t)
+    print([t, k])
+print([max(results), np.argmax(results)+1])
+
+"""
+import numpy as np
+from sklearn.linear_model import Perceptron
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import StandardScaler
+import pandas
+
+data_train = pandas.read_csv('C:/Users/Леша/Downloads/perceptron-train.csv', header=None).values
+data_test = pandas.read_csv('C:/Users/Леша/Downloads/perceptron-test.csv', header=None).values
+X_train = data_train[:, 1:]
+X_test = data_test[:, 1:]
+y_train = data_train[:,0]
+y_test = data_test[:,0]
+print([X_test, X_train, y_test, y_train])
+
+clf = Perceptron(random_state=241)
+clf.fit(X_train, y_train)
+acc = accuracy_score(y_test, clf.predict(X=X_test))
+
+scaler = StandardScaler()
+X_train_sc = scaler.fit_transform(X_train)
+X_test_sc = scaler.transform(X_test)
+clf2 = Perceptron(random_state=241)
+clf2.fit(X_train_sc, y_train)
+acc2 = accuracy_score(y_test, clf2.predict(X=X_test_sc))
+print([acc, acc2, acc2 - acc])
+
+
+
+
